@@ -28,10 +28,14 @@ fetch("/js/product.json")
         const productColor3 = `<option>${
           products[i].colors[2] ?? "--SVP, choisissez une couleur --"
         }</option>`;
+        const productColor4 = `<option>${
+          products[i].colors[3] ?? "--SVP, choisissez une couleur --"
+        }</option>`;
         const idColors = document.querySelector("#colors");
         idColors.insertAdjacentHTML("beforeEnd", productColor1);
         idColors.insertAdjacentHTML("beforeEnd", productColor2);
         idColors.insertAdjacentHTML("beforeEnd", productColor3);
+        idColors.insertAdjacentHTML("beforeEnd", productColor4);
       }
     }
   });
