@@ -19,23 +19,13 @@ fetch("/js/product.json")
         const productDescription = `<p>${products[i].description}</p>`;
         const idDescription = document.querySelector("#description");
         idDescription.insertAdjacentHTML("beforeEnd", productDescription);
-        const productColor1 = `<option>${
-          products[i].colors[0] ?? "--SVP, choisissez une couleur --"
-        } </option>`;
-        const productColor2 = `<option>${
-          products[i].colors[1] ?? "--SVP, choisissez une couleur --"
-        }</option>`;
-        const productColor3 = `<option>${
-          products[i].colors[2] ?? "--SVP, choisissez une couleur --"
-        }</option>`;
-        const productColor4 = `<option>${
-          products[i].colors[3] ?? "--SVP, choisissez une couleur --"
-        }</option>`;
-        const idColors = document.querySelector("#colors");
-        idColors.insertAdjacentHTML("beforeEnd", productColor1);
-        idColors.insertAdjacentHTML("beforeEnd", productColor2);
-        idColors.insertAdjacentHTML("beforeEnd", productColor3);
-        idColors.insertAdjacentHTML("beforeEnd", productColor4);
+
+        for (let j = 0; j < products[i].colors.length; j++) {
+          const productColor = `<option>${products[i].colors[j]} </option>`;
+          console.log(productColor);
+          const idColors = document.querySelector("#colors");
+          idColors.insertAdjacentHTML("beforeEnd", productColor);
+        }
       }
     }
   });
