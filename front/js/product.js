@@ -49,66 +49,73 @@ fetch("/js/product.json")
         const addToCart = document.querySelector("#addToCart");
         addToCart.addEventListener("click", function () {
           // Récupération des couleurs et de la quantité du produit par leur valeur
-          const listColors = document.getElementById("colors").value;
+          const listColors = document.querySelector("#colors").value;
           // "valueAsNumber" va permettre de récupérer la valeur sous forme de "number" au lieu de "string"
-          let input = document.getElementById("quantity").valueAsNumber;
+          let productQuantity =
+            document.querySelector("#quantity").valueAsNumber;
 
-          // Création d'un objet qui contient les valeurs "id", "color" et "input" du produit
+          // Création d'un objet qui contient les valeurs "id", "color" et "quantity" du produit
           const productObject = {
             idProductObject: idProduct,
             colorProductObject: listColors,
-            inputProductObject: input,
+            quantityProductObject: productQuantity,
           };
 
-          console.log(productObject.inputProductObject);
-
-          // Création d'une variable en vue de déclencher une action plus tard si la valeur est "true"
-          let flag = false;
-
-          for (
-            let index = 0;
-            index < productArrayInLocalStorageParsed.length;
-            index++
+          if (
+            productObject.quantityProductObject === 0 ||
+            productObject.colorProductObject === ""
           ) {
-            // lister tous les "id" dans le localStorage
-            let idProductInLocalStorage =
-              productArrayInLocalStorageParsed[index].idProductObject;
-            console.log(idProductInLocalStorage);
-            // lister toutes les "couleurs" dans le localStorage
-            let colorProductInLocalStorage =
-              productArrayInLocalStorageParsed[index].colorProductObject;
-            console.log(colorProductInLocalStorage);
-            if (
-              idProduct === idProductInLocalStorage &&
-              listColors === colorProductInLocalStorage
-            ) {
-              // Modification de la valeur de la variable
-              flag = true;
-              // Récupération de l'index qui correspond à la condition demandée
-              indexFound = index;
-            }
-          }
-
-          //  Déclencheur de l'action si "true"
-          if (flag) {
-            // Changement de la valeur de la quantité du produit dans le tableau en l'additionnant avec la quantité du produit dont on a comparé
-            productArrayInLocalStorageParsed[indexFound].inputProductObject =
-              productArrayInLocalStorageParsed[indexFound].inputProductObject +
-              productObject.inputProductObject;
+            alert(
+              "Vous devez choisir une couleur et mettre une quantité supérieure à 0"
+            );
           } else {
-            // Enregistrement du produit dans le localStorage
-            productArrayInLocalStorageParsed.push(productObject);
-          }
+            // Création d'une variable en vue de déclencher une action plus tard si la valeur est "true"
+            let flag = false;
 
-          // sérialisation du tableau
-          const productArrayStringify = JSON.stringify(
-            productArrayInLocalStorageParsed
-          );
-          window.localStorage.setItem(
-            "productArrayInLocalStorage",
-            productArrayStringify
-          );
-          console.log(productArrayStringify);
+            for (
+              let index = 0;
+              index < productArrayInLocalStorageParsed.length;
+              index++
+            ) {
+              // lister tous les "id" dans le localStorage
+              let idProductInLocalStorage =
+                productArrayInLocalStorageParsed[index].idProductObject;
+              // lister toutes les "couleurs" dans le localStorage
+              let colorProductInLocalStorage =
+                productArrayInLocalStorageParsed[index].colorProductObject;
+              if (
+                idProduct === idProductInLocalStorage &&
+                listColors === colorProductInLocalStorage
+              ) {
+                // Modification de la valeur de la variable
+                flag = true;
+                // Récupération de l'index qui correspond à la condition demandée
+                indexFound = index;
+              }
+            }
+
+            //  Déclencheur de l'action si "true"
+            if (flag) {
+              // Changement de la valeur de la quantité du produit dans le tableau en l'additionnant avec la quantité du produit dont on a comparé
+              productArrayInLocalStorageParsed[
+                indexFound
+              ].quantityProductObject =
+                productArrayInLocalStorageParsed[indexFound]
+                  .quantityProductObject + productObject.quantityProductObject;
+            } else {
+              // Enregistrement du produit dans le localStorage
+              productArrayInLocalStorageParsed.push(productObject);
+            }
+
+            // sérialisation du tableau
+            const productArrayStringify = JSON.stringify(
+              productArrayInLocalStorageParsed
+            );
+            window.localStorage.setItem(
+              "productArrayInLocalStorage",
+              productArrayStringify
+            );
+          }
         });
       }
     }
