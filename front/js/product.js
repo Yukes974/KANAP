@@ -61,6 +61,8 @@ fetch("/js/product.json")
             quantityProductObject: productQuantity,
           };
 
+          console.log(productObject.quantityProductObject);
+
           if (
             productObject.quantityProductObject === 0 ||
             productObject.colorProductObject === ""
@@ -80,9 +82,11 @@ fetch("/js/product.json")
               // lister tous les "id" dans le localStorage
               let idProductInLocalStorage =
                 productArrayInLocalStorageParsed[index].idProductObject;
+              console.log(idProductInLocalStorage);
               // lister toutes les "couleurs" dans le localStorage
               let colorProductInLocalStorage =
                 productArrayInLocalStorageParsed[index].colorProductObject;
+              console.log(colorProductInLocalStorage);
               if (
                 idProduct === idProductInLocalStorage &&
                 listColors === colorProductInLocalStorage
@@ -97,6 +101,10 @@ fetch("/js/product.json")
             //  Déclencheur de l'action si "true"
             if (flag) {
               // Changement de la valeur de la quantité du produit dans le tableau en l'additionnant avec la quantité du produit dont on a comparé
+              console.log(
+                productArrayInLocalStorageParsed[indexFound]
+                  .quantityProductObject
+              );
               productArrayInLocalStorageParsed[
                 indexFound
               ].quantityProductObject =
@@ -115,6 +123,7 @@ fetch("/js/product.json")
               "productArrayInLocalStorage",
               productArrayStringify
             );
+            console.log(productArrayStringify);
           }
         });
       }
