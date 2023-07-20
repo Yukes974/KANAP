@@ -1,101 +1,150 @@
-let productArrayInLocalStorageParsed = JSON.parse(
+let productInLocalStorageParsed = JSON.parse(
   window.localStorage.getItem("productArrayInLocalStorage")
 );
-console.log(productArrayInLocalStorageParsed);
+console.log(productInLocalStorageParsed);
+function refreshPage() {
+  console.log("refreshPage executé");
+  fetch("/js/product.json")
+    .then((response) => response.json())
+    .then((products) => {
+      let totalQuantityProduct = 0;
+      let totalPrice = 0;
 
-fetch("/js/product.json")
-  .then((response) => response.json())
-  .then((products) => {
-    let totalQuantityProduct = 0;
-    let totalPrice = 0;
-    let finalTotalQuantityProduct = 0;
-    let finalTotalPrice = 0;
-    for (
-      let countArticleInLocalStorage = 0;
-      countArticleInLocalStorage < productArrayInLocalStorageParsed.length;
-      countArticleInLocalStorage++
-    ) {
-      for (
-        let indexArticleJson = 0;
-        indexArticleJson < products.length;
-        indexArticleJson++
-      ) {
-        const productInJson = products[indexArticleJson];
-        const productInLocalStorage =
-          productArrayInLocalStorageParsed[countArticleInLocalStorage];
+      for (let i = 0; i < productInLocalStorageParsed.length; i++) {
+        let productInLocalStorage = productInLocalStorageParsed[i];
+        for (let j = 0; j < products.length; j++) {
+          const productInJson = products[j];
 
-        if (productInJson._id === productInLocalStorage.idProductObject) {
-          const html = `<article class="cart__item" data-id="${productInJson._id}" data-color="${productInJson.colors}">
-        <div class="cart__item__img">
-          <img src="${productInJson.imageUrl}" alt="${productInJson.altTxt}">
-        </div>
-        <div class="cart__item__content">
-          <div class="cart__item__content__description">
-            <h2>${productInJson.name}</h2>
-            <p>${productInLocalStorage.colorProductObject}</p>
-            <p>${productInJson.price} €</p>
+          if (productInJson._id === productInLocalStorage.idProductObject) {
+            const html = `<article class="cart__item" data-id="${productInLocalStorage.idProductObject}" data-color="${productInLocalStorage.colorProductObject}">
+          <div class="cart__item__img">
+            <img src="${productInJson.imageUrl}" alt="${productInJson.altTxt}">
           </div>
-          <div class="cart__item__content__settings">
-            <div class="cart__item__content__settings__quantity">
-              <p>Qté : </p>
-              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${productInLocalStorage.quantityProductObject}">
+          <div class="cart__item__content">
+            <div class="cart__item__content__description">
+              <h2>${productInJson.name}</h2>
+              <p>${productInLocalStorage.colorProductObject}</p>
+              <p>${productInJson.price} €</p>
             </div>
-            <div class="cart__item__content__settings__delete">
-              <p class="deleteItem">Supprimer</p>
+            <div class="cart__item__content__settings">
+              <div class="cart__item__content__settings__quantity">
+                <p>Qté : </p>
+                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${productInLocalStorage.quantityProductObject}">
+              </div>
+              <div class="cart__item__content__settings__delete">
+                <p class="deleteItem">Supprimer</p>
+              </div>
             </div>
           </div>
-        </div>
-      </article>`;
+        </article>`;
 
-          const sectionFiches = document.querySelector("#cart__items");
+            const sectionFiches = document.querySelector("#cart__items");
 
-          //sectionFiches.innerHTML = html;
-          sectionFiches.insertAdjacentHTML("beforeEnd", html);
+            console.log(sectionFiches);
 
-          // // création d'un évènement pour le bouton "removeToCart" et qui est un "click"
-          // const removeToCart = document.querySelector(".deleteItem");
-          // removeToCart.addEventListener("click", function () {
-          //   window.localStorage.removeItem(
-          //     "productArrayInLocalStorage",
-          //     productArrayInLocalStorageParsed
-          //   );
-          // });
+            //sectionFiches.innerHTML = html;
+            sectionFiches.insertAdjacentHTML("beforeEnd", html);
 
-          // calcul de la quantité de tous les produits dans le localStorage
-          totalQuantityProduct += productInLocalStorage.quantityProductObject;
+            // création d'un évènement pour le bouton "removeToCart" et qui est un "click"
 
-          console.log(totalQuantityProduct);
+            const removeToCart = document.querySelector(
+              ".cart__item:last-child .deleteItem"
+            );
 
-          // prix total par article
-          let productTotalPrice =
-            productInJson.price * productInLocalStorage.quantityProductObject;
+            console.log(removeToCart);
+            // const removeToCart = document.querySelector(".deleteItem");
+            removeToCart.addEventListener("click", function () {
+              // produit effacé dans le localStorage
+              for (let k = 0; k < productInLocalStorageParsed.length; k++) {
+                if (
+                  productInLocalStorageParsed[k].idProductObject ===
+                  productInLocalStorage.idProductObject
+                ) {
+                  productInLocalStorageParsed.pop();
+                  console.log("boucle click supprimé");
+                }
+              }
 
-          console.log(productTotalPrice);
+              //  envois de l'information dans le localStorage
+              const productArrayStringify = JSON.stringify(
+                productInLocalStorageParsed
+              );
+              window.localStorage.setItem(
+                "productArrayInLocalStorage",
+                productArrayStringify
+              );
+              console.log(productArrayStringify);
 
-          //  calcul du prix total de tous les produits dnas le localStorage
-          totalPrice += productTotalPrice;
+              //
+              sectionFiches.innerHTML = "";
+              refreshPage();
+            });
 
-          console.log(totalPrice);
+            const input = document.querySelector(
+              ".cart__item:last-child .itemQuantity"
+            );
 
-          // for (let countTotalPrice = 0;  )
+            // lorsqu'on change la valeur de la quantité, elle est prit en compte
+            function updateValue() {
+              for (let l = 0; l < productInLocalStorageParsed.length; l++) {
+                if (
+                  productInLocalStorageParsed[l].idProductObject ===
+                  productInLocalStorage.idProductObject
+                ) {
+                  productInLocalStorageParsed[l].quantityProductObject =
+                    this.value;
+                }
+              }
+              //  envois de l'information dans le localStorage
+              const productArrayStringify = JSON.stringify(
+                productInLocalStorageParsed
+              );
+              window.localStorage.setItem(
+                "productArrayInLocalStorage",
+                productArrayStringify
+              );
+              console.log(productArrayStringify);
 
-          // let allProductTotalPrice = totalPrice + totalPrice;
+              //
+              sectionFiches.innerHTML = "";
+              refreshPage();
+            }
+            input.addEventListener("input", updateValue);
 
-          // console.log(allProductTotalPrice);
+            // calcul de la quantité de tous les produits dans le localStorage
+            totalQuantityProduct += productInLocalStorage.quantityProductObject;
+
+            console.log(totalQuantityProduct);
+
+            // prix total par article
+            let productTotalPrice =
+              productInJson.price * productInLocalStorage.quantityProductObject;
+
+            console.log(productTotalPrice);
+
+            //  calcul du prix total de tous les produits dans le localStorage
+            totalPrice += productTotalPrice;
+
+            console.log(totalPrice);
+
+            console.log(input);
+
+            // function indexFound(index) {
+            //   return (
+            //     index.index === productInLocalStorageParsed.idProductObject
+            //   );
+            // }
+            // console.log(productInLocalStorageParsed.findIndex(indexFound));
+          }
         }
       }
-    }
 
-    // Quantité et prix finaux de tous les produits
-    finalTotalQuantityProduct = totalQuantityProduct;
-    finalTotalPrice = totalPrice;
+      const idTotalQuantity = document.querySelector("#totalQuantity");
+      const idTotalPrice = document.querySelector("#totalPrice");
 
-    const showTotalQuantity = `<span id="totalQuantity">${finalTotalQuantityProduct}</span>`;
-    const showTotalPrice = `<span id="totalPrice">${finalTotalPrice}</span>`;
+      idTotalQuantity.innerHTML = totalQuantityProduct;
+      idTotalPrice.innerHTML = totalPrice;
+    });
+}
 
-    const idTotalQuantity = document.querySelector("#totalQuantity");
-    const idTotalPrice = document.querySelector("#totalPrice");
-
-    idTotalQuantity.insertAdjacentHTML("beforeEnd", showTotalQuantity);
-    idTotalPrice.insertAdjacentHTML("beforeEnd", showTotalPrice);
-  });
+refreshPage();
