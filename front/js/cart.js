@@ -9,6 +9,7 @@ fetch("/js/product.json")
     function refreshPage() {
       console.log("refreshPage executé");
       let totalQuantityProduct = 0;
+      console.log(totalQuantityProduct);
       let totalPrice = 0;
 
       for (let i = 0; i < productInLocalStorageParsed.length; i++) {
@@ -107,7 +108,7 @@ fetch("/js/product.json")
                     productInLocalStorage.colorProductObject
                 ) {
                   productInLocalStorageParsed[l].quantityProductObject =
-                    this.value;
+                    parseInt(this.value, 10);
                 }
               }
               sendAndGetInfoLocalStorage();
