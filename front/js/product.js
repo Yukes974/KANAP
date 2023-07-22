@@ -63,6 +63,8 @@ fetch("/js/product.json")
 
           console.log(productObject.quantityProductObject);
 
+          let indexFound = -1;
+
           if (
             productObject.quantityProductObject === 0 ||
             productObject.colorProductObject === ""

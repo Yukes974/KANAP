@@ -2,11 +2,12 @@ let productInLocalStorageParsed = JSON.parse(
   window.localStorage.getItem("productArrayInLocalStorage")
 );
 console.log(productInLocalStorageParsed);
-function refreshPage() {
-  console.log("refreshPage executé");
-  fetch("/js/product.json")
-    .then((response) => response.json())
-    .then((products) => {
+
+fetch("/js/product.json")
+  .then((response) => response.json())
+  .then((products) => {
+    function refreshPage() {
+      console.log("refreshPage executé");
       let totalQuantityProduct = 0;
       let totalPrice = 0;
 
@@ -45,26 +46,7 @@ function refreshPage() {
             //sectionFiches.innerHTML = html;
             sectionFiches.insertAdjacentHTML("beforeEnd", html);
 
-            // création d'un évènement pour le bouton "removeToCart" et qui est un "click"
-
-            const removeToCart = document.querySelector(
-              ".cart__item:last-child .deleteItem"
-            );
-
-            console.log(removeToCart);
-            // const removeToCart = document.querySelector(".deleteItem");
-            removeToCart.addEventListener("click", function () {
-              // produit effacé dans le localStorage
-              for (let k = 0; k < productInLocalStorageParsed.length; k++) {
-                if (
-                  productInLocalStorageParsed[k].idProductObject ===
-                  productInLocalStorage.idProductObject
-                ) {
-                  productInLocalStorageParsed.pop();
-                  console.log("boucle click supprimé");
-                }
-              }
-
+            function sendAndGetInfoLocalStorage() {
               //  envois de l'information dans le localStorage
               const productArrayStringify = JSON.stringify(
                 productInLocalStorageParsed
@@ -74,10 +56,41 @@ function refreshPage() {
                 productArrayStringify
               );
               console.log(productArrayStringify);
+              productInLocalStorageParsed = JSON.parse(
+                window.localStorage.getItem("productArrayInLocalStorage")
+              );
+              console.log(productInLocalStorageParsed);
 
-              //
               sectionFiches.innerHTML = "";
               refreshPage();
+            }
+
+            // création d'un évènement pour le bouton "removeToCart" et qui est un "click"
+
+            const removeToCart = document.querySelector(
+              ".cart__item:last-child .deleteItem"
+            );
+
+            console.log(removeToCart);
+            // const removeToCart = document.querySelector(".deleteItem");
+            removeToCart.addEventListener("click", function () {
+              let indexFound = -1;
+              // produit effacé dans le localStorage
+              for (let k = 0; k < productInLocalStorageParsed.length; k++) {
+                if (
+                  productInLocalStorageParsed[k].idProductObject ===
+                    productInLocalStorage.idProductObject &&
+                  productInLocalStorageParsed[k].colorProductObject ===
+                    productInLocalStorage.colorProductObject
+                ) {
+                  indexFound = k;
+                  console.log(indexFound);
+                }
+              }
+              productInLocalStorageParsed.splice(indexFound, 1);
+              console.log(productInLocalStorageParsed);
+
+              sendAndGetInfoLocalStorage();
             });
 
             const input = document.querySelector(
@@ -89,25 +102,15 @@ function refreshPage() {
               for (let l = 0; l < productInLocalStorageParsed.length; l++) {
                 if (
                   productInLocalStorageParsed[l].idProductObject ===
-                  productInLocalStorage.idProductObject
+                    productInLocalStorage.idProductObject &&
+                  productInLocalStorageParsed[l].colorProductObject ===
+                    productInLocalStorage.colorProductObject
                 ) {
                   productInLocalStorageParsed[l].quantityProductObject =
                     this.value;
                 }
               }
-              //  envois de l'information dans le localStorage
-              const productArrayStringify = JSON.stringify(
-                productInLocalStorageParsed
-              );
-              window.localStorage.setItem(
-                "productArrayInLocalStorage",
-                productArrayStringify
-              );
-              console.log(productArrayStringify);
-
-              //
-              sectionFiches.innerHTML = "";
-              refreshPage();
+              sendAndGetInfoLocalStorage();
             }
             input.addEventListener("input", updateValue);
 
@@ -128,13 +131,6 @@ function refreshPage() {
             console.log(totalPrice);
 
             console.log(input);
-
-            // function indexFound(index) {
-            //   return (
-            //     index.index === productInLocalStorageParsed.idProductObject
-            //   );
-            // }
-            // console.log(productInLocalStorageParsed.findIndex(indexFound));
           }
         }
       }
@@ -144,7 +140,6 @@ function refreshPage() {
 
       idTotalQuantity.innerHTML = totalQuantityProduct;
       idTotalPrice.innerHTML = totalPrice;
-    });
-}
-
-refreshPage();
+    }
+    refreshPage();
+  });
