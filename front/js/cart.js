@@ -1,19 +1,18 @@
 let productInLocalStorageParsed = JSON.parse(
   window.localStorage.getItem("productArrayInLocalStorage")
 );
-console.log(productInLocalStorageParsed);
 
-fetch("/js/product.json")
+fetch("http://localhost:3000/api/products")
   .then((response) => response.json())
   .then((products) => {
     function refreshPage() {
-      console.log("refreshPage executé");
       let totalQuantityProduct = 0;
-      console.log(totalQuantityProduct);
       let totalPrice = 0;
 
+      // Listing des produits dans le localStorage
       for (let i = 0; i < productInLocalStorageParsed.length; i++) {
         let productInLocalStorage = productInLocalStorageParsed[i];
+        // Listing des produits dans le fichier JSON
         for (let j = 0; j < products.length; j++) {
           const productInJson = products[j];
 
@@ -40,11 +39,8 @@ fetch("/js/product.json")
           </div>
         </article>`;
 
-            const sectionFiches = document.querySelector("#cart__items");
+            const sectionFiches = document.getElementById("cart__items");
 
-            console.log(sectionFiches);
-
-            //sectionFiches.innerHTML = html;
             sectionFiches.insertAdjacentHTML("beforeEnd", html);
 
             function sendAndGetInfoLocalStorage() {
@@ -56,11 +52,9 @@ fetch("/js/product.json")
                 "productArrayInLocalStorage",
                 productArrayStringify
               );
-              console.log(productArrayStringify);
               productInLocalStorageParsed = JSON.parse(
                 window.localStorage.getItem("productArrayInLocalStorage")
               );
-              console.log(productInLocalStorageParsed);
 
               sectionFiches.innerHTML = "";
               refreshPage();
@@ -72,7 +66,6 @@ fetch("/js/product.json")
               ".cart__item:last-child .deleteItem"
             );
 
-            console.log(removeToCart);
             // const removeToCart = document.querySelector(".deleteItem");
             removeToCart.addEventListener("click", function () {
               let indexFound = -1;
@@ -85,11 +78,9 @@ fetch("/js/product.json")
                     productInLocalStorage.colorProductObject
                 ) {
                   indexFound = k;
-                  console.log(indexFound);
                 }
               }
               productInLocalStorageParsed.splice(indexFound, 1);
-              console.log(productInLocalStorageParsed);
 
               sendAndGetInfoLocalStorage();
             });
@@ -107,8 +98,9 @@ fetch("/js/product.json")
                   productInLocalStorageParsed[l].colorProductObject ===
                     productInLocalStorage.colorProductObject
                 ) {
-                  productInLocalStorageParsed[l].quantityProductObject =
-                    parseInt(this.value, 10);
+                  productInLocalStorageParsed[l].quantityProductObject = Number(
+                    this.value
+                  );
                 }
               }
               sendAndGetInfoLocalStorage();
@@ -118,29 +110,114 @@ fetch("/js/product.json")
             // calcul de la quantité de tous les produits dans le localStorage
             totalQuantityProduct += productInLocalStorage.quantityProductObject;
 
-            console.log(totalQuantityProduct);
-
             // prix total par article
             let productTotalPrice =
               productInJson.price * productInLocalStorage.quantityProductObject;
 
-            console.log(productTotalPrice);
-
             //  calcul du prix total de tous les produits dans le localStorage
             totalPrice += productTotalPrice;
-
-            console.log(totalPrice);
-
-            console.log(input);
           }
         }
       }
 
-      const idTotalQuantity = document.querySelector("#totalQuantity");
-      const idTotalPrice = document.querySelector("#totalPrice");
+      const idTotalQuantity = document.getElementById("totalQuantity");
+      const idTotalPrice = document.getElementById("totalPrice");
 
       idTotalQuantity.innerHTML = totalQuantityProduct;
       idTotalPrice.innerHTML = totalPrice;
+
+      // Formulaire
+
+      const form = document.querySelector("form");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        // Récupération de la valeur des champs
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const address = document.getElementById("address").value;
+        const city = document.getElementById("city").value;
+        const email = document.getElementById("email").value;
+
+        // Etablissement des conditions pour que la valeur d'un champ soit autorisé
+        let firstNameRegex = new RegExp("^[a-zA-Z- ]+$");
+        let firstNameResult = firstNameRegex.test(firstName);
+        let lastNameRegex = new RegExp("^[a-zA-Z- ]+$");
+        let lastNameResult = lastNameRegex.test(lastName);
+        let addressRegex = new RegExp("^[a-zA-Z0-9-, ]+$");
+        let addressResult = addressRegex.test(address);
+        let cityRegex = new RegExp("^[a-zA-Z- ]+$");
+        let cityResult = cityRegex.test(city);
+        let emailRegex = new RegExp("^[a-z0-9._-]+@[a-z0-9._-]+.[a-z0-9._-]+$");
+        let emailResult = emailRegex.test(email);
+
+        // Condition booléenne si la valeur est différente de ce qu'il est attendu dans le champ => Un message d'erreur sera affiché
+        if (!firstNameResult) {
+          const firstNameErrorMsg =
+            document.getElementById("firstNameErrorMsg");
+          firstNameErrorMsg.innerHTML =
+            "Ce champ n'est pas rempli correctement";
+          return false;
+        }
+        if (!lastNameResult) {
+          const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+          lastNameErrorMsg.innerHTML = "Ce champ n'est pas rempli correctement";
+          return false;
+        }
+        if (!addressResult) {
+          const addressErrorMsg = document.getElementById("addressErrorMsg");
+          addressErrorMsg.innerHTML = "Ce champ n'est pas rempli correctement";
+          return false;
+        }
+        if (!cityResult) {
+          const cityErrorMsg = document.getElementById("cityErrorMsg");
+          cityErrorMsg.innerHTML = "Ce champ n'est pas rempli correctement";
+          return false;
+        }
+        if (!emailResult) {
+          const emailErrorMsg = document.getElementById("emailErrorMsg");
+          emailErrorMsg.innerHTML = "Ce champ n'est pas rempli correctement";
+          return false;
+        }
+
+        // Création d'un objet pour y stocker les informations du champ
+        let user = {
+          firstName: firstName,
+          lastName: lastName,
+          address: address,
+          city: city,
+          email: email,
+        };
+
+        // Alternative à une boucle. Récupération de l'id actuel du produit
+        let productIds = products.map((product) => {
+          return product._id;
+        });
+
+        // Envois des informations grâce un méthode POST dans l'API
+        let userResponse = await fetch(
+          "http://localhost:3000/api/products/order",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json;charset=utf-8",
+            },
+            body: JSON.stringify({
+              contact: user,
+
+              products: productIds,
+            }),
+          }
+        );
+
+        // Récupération de l'id créé pour la commande et si elle est bonne, il y aura redirection vers la page confirmation
+        let userResult = await userResponse.json();
+
+        if (userResult.orderId) {
+          window.location.href = `/html/confirmation.html?id=${userResult.orderId}`;
+        }
+      });
     }
     refreshPage();
   });
